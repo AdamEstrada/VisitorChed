@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Visitor;
@@ -9,12 +10,12 @@ class VisitorController extends Controller
     public function index()
     {
         return response()->json([
-            'default_connection' => config('database.default'),
-            'mysql_host' => config('database.connections.mysql.host'),
-            'mysql_port' => config('database.connections.mysql.port'),
-            'visitor_connection' => (new Visitor)->getConnectionName(),
-            'actual_connection_host' => (new Visitor)->getConnection()->getConfig('host'),
-            'actual_connection_port' => (new Visitor)->getConnection()->getConfig('port'),
+            'laravel_host' => config('database.connections.mysql.host'),
+            'laravel_port' => config('database.connections.mysql.port'),
+            'system_host' => getenv('DB_HOST') ?: null,
+            'system_port' => getenv('DB_PORT') ?: null,
+            'env_host' => env('DB_HOST'),
+            'env_port' => env('DB_PORT'),
         ]);
     }
 
@@ -26,52 +27,41 @@ class VisitorController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'address' => 'required|string|max:255',
-            'position' => 'required|string|max:255',
+            'name' => 'required',
+            'address' => 'required',
+            'position' => 'required',
         ]);
 
         Visitor::create($request->all());
 
         return redirect()->route('visitors.index')
-            ->with('success', 'Visitor added successfully!');
+            ->with('success', 'Visitor added successfully.');
     }
 
-    public function show(string $id)
+    public function edit(Visitor $visitor)
     {
-        $visitor = Visitor::findOrFail($id);
-
-        return view('visitors.show', compact('visitor'));
-    }
-
-    public function edit(string $id)
-    {
-        $visitor = Visitor::findOrFail($id);
-
         return view('visitors.edit', compact('visitor'));
     }
 
-    public function update(Request $request, string $id)
+    public function update(Request $request, Visitor $visitor)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'address' => 'required|string|max:255',
-            'position' => 'required|string|max:255',
+            'name' => 'required',
+            'address' => 'required',
+            'position' => 'required',
         ]);
 
-        $visitor = Visitor::findOrFail($id);
         $visitor->update($request->all());
 
         return redirect()->route('visitors.index')
-            ->with('success', 'Visitor updated successfully!');
+            ->with('success', 'Visitor updated successfully.');
     }
 
-    public function destroy(string $id)
+    public function destroy(Visitor $visitor)
     {
-        $visitor = Visitor::findOrFail($id);
         $visitor->delete();
 
         return redirect()->route('visitors.index')
-            ->with('success', 'Visitor deleted successfully!');
+            ->with('success', 'Visitor deleted successfully.');
     }
 }
