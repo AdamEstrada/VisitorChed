@@ -18,5 +18,5 @@ RUN chmod -R 775 storage bootstrap/cache
 
 EXPOSE 10000
 
-CMD php artisan config:clear && php artisan serve --host=0.0.0.0 --port=10000
+CMD sh -c 'echo "DB_CONNECTION=$DB_CONNECTION DB_HOST=$DB_HOST DB_PORT=$DB_PORT SESSION_DRIVER=$SESSION_DRIVER"; php artisan config:clear; php artisan serve --host=0.0.0.0 --port=10000'
 
