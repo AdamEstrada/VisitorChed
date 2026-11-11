@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Visitor;
@@ -7,21 +6,23 @@ use Illuminate\Http\Request;
 
 class VisitorController extends Controller
 {
-    // Display all visitors
     public function index()
     {
-        $visitors = Visitor::latest()->get();
-
-        return view('visitors.index', compact('visitors'));
+        return response()->json([
+            'default_connection' => config('database.default'),
+            'mysql_host' => config('database.connections.mysql.host'),
+            'mysql_port' => config('database.connections.mysql.port'),
+            'visitor_connection' => (new Visitor)->getConnectionName(),
+            'actual_connection_host' => (new Visitor)->getConnection()->getConfig('host'),
+            'actual_connection_port' => (new Visitor)->getConnection()->getConfig('port'),
+        ]);
     }
 
-    // Show add visitor form
     public function create()
     {
         return view('visitors.create');
     }
 
-    // Save new visitor
     public function store(Request $request)
     {
         $request->validate([
@@ -36,7 +37,6 @@ class VisitorController extends Controller
             ->with('success', 'Visitor added successfully!');
     }
 
-    // Display one visitor
     public function show(string $id)
     {
         $visitor = Visitor::findOrFail($id);
@@ -44,7 +44,6 @@ class VisitorController extends Controller
         return view('visitors.show', compact('visitor'));
     }
 
-    // Show edit visitor form
     public function edit(string $id)
     {
         $visitor = Visitor::findOrFail($id);
@@ -52,7 +51,6 @@ class VisitorController extends Controller
         return view('visitors.edit', compact('visitor'));
     }
 
-    // Update visitor information
     public function update(Request $request, string $id)
     {
         $request->validate([
@@ -68,7 +66,6 @@ class VisitorController extends Controller
             ->with('success', 'Visitor updated successfully!');
     }
 
-    // Delete visitor
     public function destroy(string $id)
     {
         $visitor = Visitor::findOrFail($id);
